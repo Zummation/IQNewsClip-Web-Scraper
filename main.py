@@ -12,7 +12,7 @@ scraper = IQNewsClipScraper()
 scraper.login()
 
 for key in keys:
-    if key < 'EGCO': continue
+    if key <= 'M': continue
     for source in sources:
         df = scraper.search_all(key, source)
         df.to_csv(f'result/{key}-{source}.csv', index=False)

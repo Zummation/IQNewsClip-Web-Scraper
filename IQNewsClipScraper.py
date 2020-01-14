@@ -58,7 +58,7 @@ class IQNewsClipScraper():
             elif i % 5 == 0:
                 print('.', end='')
         print(f' {i}/{i} pages ', end='')
-        
+
         return df
 
 
@@ -79,9 +79,8 @@ class IQNewsClipScraper():
                 self._has_next = True
             else:
                 self._has_next = False
-            return pd.DataFrame(data)
         except:
-            pass
+            print('x', end='')
 
         return pd.DataFrame(data)
 
