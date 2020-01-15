@@ -1,8 +1,8 @@
 import requests
 import pandas as pd
 
-from utils import SOURCES_CODE
 from bs4 import BeautifulSoup
+from utils import SOURCES_CODE
 
 
 
@@ -16,10 +16,9 @@ class IQNewsClipScraper():
 
     def login(self):
         self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
-        print('logged in')
 
 
-    def search(self, search_key, source):
+    def search_once(self, search_key, source):
         """return pandas.DataFrame of one-time keyword searching"""
 
         payload = {
@@ -41,16 +40,16 @@ class IQNewsClipScraper():
         except requests.exceptions.RequestException as e:
             self._has_next = False
             df = None
-            print(e)
+            print('RequestException: ', e)
         return df
     
 
-    def search_all(self, search_key: str, source: str, n_times=-1):
+    def search_all(self, search_key: str, source: str):
         """return pandas.DataFrame of entire data with the given search_key and source"""
 
-        df = self.search(search_key, source)
+        df = self.search_once(search_key, source)
         i = 1
-        while self.has_next() and i != n_times:
+        while self.has_next():
             df = df.append(self.search_next(), ignore_index=True)
             i += 1
             if i % 50 == 0:
@@ -80,9 +79,9 @@ class IQNewsClipScraper():
             else:
                 self._has_next = False
         except:
-            # print(html)
             print('x', end='')
 
+        # print(html)
         return pd.DataFrame(data)
 
 
@@ -90,3 +89,4 @@ class IQNewsClipScraper():
         """return True if next pages exist"""
 
         return self._has_next
+
