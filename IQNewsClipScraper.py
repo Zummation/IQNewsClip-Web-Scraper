@@ -80,6 +80,7 @@ class IQNewsClipScraper():
             else:
                 self._has_next = False
         except:
+            # print(html)
             print('x', end='')
 
         return pd.DataFrame(data)

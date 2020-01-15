@@ -2,7 +2,7 @@ from IQNewsClipScraper import IQNewsClipScraper
 
 
 
-keys = ['CPF']
+keys = ['SABINA']
 sources = ['ข่าวหุ้น', 'ทันหุ้น']
 
 with open('SET100.csv', 'r') as f:
@@ -12,7 +12,7 @@ scraper = IQNewsClipScraper()
 scraper.login()
 
 for key in keys:
-    if key < 'S': continue
+    if key < 'SCN': continue
     for source in sources:
         df = scraper.search_all(key, source)
         df.to_csv(f'result/{key}-{source}.csv', index=False)
