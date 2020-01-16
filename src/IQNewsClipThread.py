@@ -2,7 +2,7 @@ import pandas as pd
 
 from time import sleep
 from threading import Thread
-from IQNewsClipScraper import IQNewsClipScraper
+from src.IQNewsClipScraper import IQNewsClipScraper
 
 
 
@@ -72,5 +72,5 @@ class IQNewsClipThread():
                 except:
                     print(f'result/{key}-{source}.csv not found')
 
-        df_out.to_csv('SET100NewsCount.csv', index=False)
+        df_out.to_csv('NewsCount.csv', index=False)
     

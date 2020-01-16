@@ -1,10 +1,9 @@
-from IQNewsClipScraper import IQNewsClipScraper
+from src.IQNewsClipScraper import IQNewsClipScraper
 
 
-
-# keys = ['ZZ']
 sources = ['ข่าวหุ้น', 'ทันหุ้น']
 
+# keys = ['ZZ']
 with open('SET100.csv', 'r') as f:
     keys = [symbol.strip() for symbol in f.readlines()]
 

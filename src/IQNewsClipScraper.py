@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 from bs4 import BeautifulSoup
-from utils import SOURCES_CODE
+from src.utils import SOURCES_CODE
 
 
 
