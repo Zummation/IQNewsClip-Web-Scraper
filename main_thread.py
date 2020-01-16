@@ -8,5 +8,7 @@ with open('SET100.csv', 'r') as f:
     keys = [symbol.strip() for symbol in f.readlines()]
 
 
-scraper = Scraper(keys, sources, 3)
+scraper = Scraper(keys, sources, 5)
 scraper.start()
+
+# TODO: Implement multi-processing and re-run
