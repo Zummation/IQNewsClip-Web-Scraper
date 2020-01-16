@@ -16,6 +16,7 @@ class IQNewsClipScraper():
 
     def login(self):
         self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
+        print('logging in')
 
 
     def search_once(self, search_key, source):

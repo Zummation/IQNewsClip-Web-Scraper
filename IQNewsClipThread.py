@@ -22,7 +22,6 @@ class IQNewsClipThread():
 
     def _task(self, scraper, queue):
         scraper.login()
-        print('A Thread is logging in')
         while queue:
             key, source = queue.pop(0)
             df = scraper.search_all(key, source)
