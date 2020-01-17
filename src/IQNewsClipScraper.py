@@ -15,8 +15,8 @@ class IQNewsClipScraper():
 
 
     def login(self):
-        self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
-        print('logging in')
+        response = self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
+        return response
 
 
     def search_once(self, search_key, source):
@@ -27,6 +27,7 @@ class IQNewsClipScraper():
             'CtrlSearch1:hdnews': SOURCES_CODE[source],
             'CtrlSearch1:txtSearch': search_key,
         }
+
         r = self.session.post('http://edu.iqnewsclip.com/ajax/GetResult.aspx?stype=search&rbt=false', data=payload)
         return self.extract_html(r.content)
 
@@ -35,21 +36,25 @@ class IQNewsClipScraper():
         """return pandas.DataFrame of the next page of current page"""
 
         r = self.session.get('http://edu.iqnewsclip.com/ajax/GetResult.aspx?pg=next')
+
         try:
             r.raise_for_status()
             df = self.extract_html(r.content)
+
         except requests.exceptions.RequestException as e:
             self._has_next = False
             df = None
             print('RequestException: ', e)
+
         return df
     
 
     def search_all(self, search_key: str, source: str):
-        """return pandas.DataFrame of entire data with the given search_key and source"""
+        """return pandas.DataFrame of every-pages data of the given search_key and source"""
 
         df = self.search_once(search_key, source)
         i = 1
+
         while self.has_next():
             df = df.append(self.search_next(), ignore_index=True)
             i += 1
@@ -57,16 +62,15 @@ class IQNewsClipScraper():
                 print('|', end='')
             elif i % 5 == 0:
                 print('.', end='')
+
         print(f' {i}/{i} pages ', end='')
 
         return df
 
 
-    def extract_html(self, html, **kwargs):
+    def extract_html(self, html):
         """convert html to pandas.DataFrame"""
         
-        # html = html.replace('“', '"')
-        # html = html.replace('“', '"')
         soup = BeautifulSoup(html, features='lxml', from_encoding="windows-874")
         tags = soup.find_all(['a', 'td'], class_=['HeadlineBlue', 'normalGray'])
         data = {'Date': [], 'Source':[], 'HeadLine': []}
