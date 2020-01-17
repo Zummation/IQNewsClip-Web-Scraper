@@ -4,7 +4,8 @@ from src.IQNewsClipThread import IQNewsClipThread as Scraper
 sources = ['ข่าวหุ้น', 'ทันหุ้น']
 
 with open('SET100.csv', 'r') as f:
-    keys = [symbol.strip() for symbol in f.readlines() if symbol < 'BGR' or symbol == 'TRUE']
+    keys = [symbol.strip() for symbol in f.readlines()]
+
 print(keys)
 
 scraper = Scraper(keys, sources, n_thread=6)

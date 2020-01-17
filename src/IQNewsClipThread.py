@@ -50,7 +50,7 @@ class IQNewsClipThread():
         for thread in self.threads:
             thread.start()
 
-        # count number of activated thread
+        # count number of activated thread, if 0 return
         sleep(10)
         n_activated = 0
         for thread in self.threads:
