@@ -20,7 +20,9 @@ class IQNewsClipThread():
 
 
     def _task(self, scraper, queue):
+
         scraper.login()
+
         while queue:
             key, source = queue.pop(0)
             df = scraper.search_all(key, source)
@@ -50,6 +52,7 @@ class IQNewsClipThread():
     
     
     def create_newscount_file(self):
+        """create aggregate file from those .CSVs in the result folder"""
         
         # wait until all threads are finish
         for thread in self.threads:

@@ -8,7 +8,7 @@ with open('SET100.csv', 'r') as f:
     keys = [symbol.strip() for symbol in f.readlines()]
 
 
-scraper = Scraper(keys, sources, n_thread=6)
+scraper = Scraper(keys, sources, n_thread=7)
 scraper.start()
 scraper.create_newscount_file()
 

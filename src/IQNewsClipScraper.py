@@ -64,8 +64,10 @@ class IQNewsClipScraper():
 
     def extract_html(self, html, **kwargs):
         """convert html to pandas.DataFrame"""
-
-        soup = BeautifulSoup(html, features='lxml')
+        
+        # html = html.replace('“', '"')
+        # html = html.replace('“', '"')
+        soup = BeautifulSoup(html, features='lxml', from_encoding="windows-874")
         tags = soup.find_all(['a', 'td'], class_=['HeadlineBlue', 'normalGray'])
         data = {'Date': [], 'Source':[], 'HeadLine': []}
         it = iter(tags)
@@ -82,7 +84,6 @@ class IQNewsClipScraper():
         except:
             print('x', end='')
 
-        # print(html)
         return pd.DataFrame(data)
 
 
