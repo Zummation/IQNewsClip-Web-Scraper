@@ -84,6 +84,7 @@ class IQNewsClipThread():
                 
                 try:
                     df = pd.read_csv(f'result/{key}-{source}.csv')
+                    df = df.drop_duplicates()
                     df = df.pivot_table(index=['Date'], aggfunc='size') \
                         .to_frame('Count') \
                         .reset_index()
@@ -93,6 +94,6 @@ class IQNewsClipThread():
 
                 except:
                     print(f'result/{key}-{source}.csv not found')
-
+        
         df_out.to_csv('NewsCount.csv', index=False)
     

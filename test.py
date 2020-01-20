@@ -20,3 +20,6 @@ def find_zero_row_page(keys, source):
             df = pd.read_csv(f'result/{key}-{source}.csv')
             if len(df.index) == 0:
                 print('0 row', key, source)
+
+test_charset_is_correct(keys, sources)
+find_zero_row_page(keys, sources)
