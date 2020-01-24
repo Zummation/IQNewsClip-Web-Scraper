@@ -31,7 +31,7 @@ class IQNewsClipThread():
         while queue:
             key, source = queue.pop(0)
             df = scraper.search_all(key, source)
-            df.to_csv(f'result/{key}-{source}.csv', index=False)
+            df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
             print(f'Completed {key}-{source}.csv')
 
 
