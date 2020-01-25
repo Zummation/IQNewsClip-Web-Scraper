@@ -76,8 +76,11 @@ class IQNewsClipThread():
                     df = pd.read_csv(f'result/{key}-{source}.csv')
                     if len(df.index) == 0: # for zero-row file
                         raise FileNotFoundError
-                    recent_date = datetime.strptime(df['Date'].iloc[0], '%d/%m/%y')
-                    recent_date = datetime(recent_date.year-43, recent_date.month, recent_date.day) + timedelta(days=1)
+                    recent_date = df['Date'].iloc[0]
+                    # remove the recent_date from dataframe
+                    df = df.set_index('Date').drop(recent_date, axis=0).reset_index()
+                    recent_date = datetime.strptime(recent_date, '%d/%m/%y')
+                    recent_date = datetime(recent_date.year-43, recent_date.month, recent_date.day)
                     if not self.from_date and not self.to_date:
                         new_df = scraper.search_all(key, source, datetime.now(), recent_date)
                     elif recent_date > self.from_date:
