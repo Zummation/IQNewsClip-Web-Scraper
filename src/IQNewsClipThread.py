@@ -2,6 +2,7 @@ import pandas as pd
 
 from time import sleep
 from threading import Thread
+from multiprocessing import Process
 from src.IQNewsClipScraper import IQNewsClipScraper
 
 
@@ -27,7 +28,7 @@ class IQNewsClipThread():
                 break # booking a session is incomplete
             self.scrapers += [scraper]
         self._available_thread = len(self.scrapers)
-        print(f'Activated {self._available_thread} Thread')
+        print(f'Number of threads: {self._available_thread}')
 
 
     def _task(self, scraper):
@@ -46,7 +47,7 @@ class IQNewsClipThread():
         self.container = [(key, source) for key in self.keys for source in self.sources]
 
         # create threads and run
-        self.threads = [Thread(target=self._task, args=(self.scrapers[i],)) for i in range(self._available_thread)]
+        self.threads = [Process(target=self._task, args=(self.scrapers[i],)) for i in range(self._available_thread)]
         for thread in self.threads:
             thread.start()
 
