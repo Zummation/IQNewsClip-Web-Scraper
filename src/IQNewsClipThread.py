@@ -6,6 +6,7 @@ import src.logger as logger
 
 from time import sleep
 from threading import Thread
+from datetime import date, timedelta
 from src.IQNewsClipScraper import IQNewsClipScraper
 
 
@@ -13,13 +14,31 @@ from src.IQNewsClipScraper import IQNewsClipScraper
 class IQNewsClipThread():
 
 
-    def __init__(self, keys=[], sources=[], n_thread=2):
+    def __init__(self, keys=[], sources=[], n_thread=2, start_date=None, end_date=None):
         self.keys = keys
         self.sources = sources
         self.n_thread = n_thread
         self.threads = []
         self.container = []
         self.logger = logger.create_rotating_log()
+        self.start_date = start_date
+        self.end_date = end_date
+        # self.replace = replace
+
+    
+    def set_date(self, start_date=None, end_date=None):
+        self.start_date = start_date
+        self.end_date = end_date
+
+
+    def set_today(self):
+        self.start_date = date.today()
+        self.end_date = date.today()
+
+
+    def set_yesterday(self):
+        self.start_date = date.today() - timedelta(days=1)
+        self.end_date = date.today() - timedelta(days=1)
 
 
     def _task(self):
@@ -38,7 +57,7 @@ class IQNewsClipThread():
         # scraping section
         while self.container:
             key, source = self.container.pop(0)
-            df = scraper.search_all(key, source)
+            df = scraper.search_all(key, source, self.start_date, self.end_date)
             df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
             self.logger.info(f'Created {key}-{source}.csv')
 
@@ -53,7 +72,7 @@ class IQNewsClipThread():
             thread.join()
         
 
-    def create_newscount_file(self, d_dup=False):
+    def create_newscount_file(self, d_dup=True):
         """create aggregate file from those .CSVs in the result folder"""
                 
         df_out = pd.DataFrame()

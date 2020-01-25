@@ -1,11 +1,12 @@
+import logging
 import requests
+import datetime
 import pandas as pd
 import src.logger as logger
 
 from bs4 import BeautifulSoup
 from src.utils import SOURCES_CODE
 
-import logging
 
 class IQNewsClipScraper():
 
@@ -21,16 +22,23 @@ class IQNewsClipScraper():
         return response
 
 
-    def search_once(self, search_key, source):
+    def search_once(self, search_key, source, start_date=None, end_date=None):
         """return pandas.DataFrame of one-time keyword searching"""
+        
+        if isinstance(start_date, (datetime.date, datetime.datetime)):
+            start_date = f'{start_date.day:02d}/{start_date.month:02d}/{start_date.year+543}'
+        if isinstance(end_date, (datetime.date, datetime.datetime)):
+            end_date = f'{end_date.day:02d}/{end_date.month:02d}/{end_date.year+543}'
 
         payload = {
             'CtrlSearch1:txtCategory': 'ทุกหัวเรื่องที่รับบริการ',
             'CtrlSearch1:hdnews': SOURCES_CODE[source],
             'CtrlSearch1:txtSearch': search_key,
+            'CtrlSearch1:txtDateFrom': start_date,
+            'CtrlSearch1:txtDateTo': end_date,
         }
 
-        r = self.session.post('http://edu.iqnewsclip.com/ajax/GetResult.aspx?stype=search&rbt=false', data=payload)
+        r = self.session.post('http://edu.iqnewsclip.com/ajax/GetResult.aspx?stype=search&rbt=true', data=payload)
         return self.extract_html(r.content)
 
 
@@ -51,10 +59,10 @@ class IQNewsClipScraper():
         return df
     
 
-    def search_all(self, search_key: str, source: str):
+    def search_all(self, search_key: str, source: str, start_date=None, end_date=None):
         """return pandas.DataFrame of every-pages data of the given search_key and source"""
 
-        df = self.search_once(search_key, source)
+        df = self.search_once(search_key, source, start_date, end_date)
         i = 1
 
         while self.has_next():
@@ -82,7 +90,7 @@ class IQNewsClipScraper():
             else:
                 self._has_next = False
         except:
-            self.logger.error('An error occurs in extracting html')
+            self.logger.error('An error occurs when extracting html')
 
         return pd.DataFrame(data)
 
