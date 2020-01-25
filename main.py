@@ -6,7 +6,7 @@ if __name__ == '__main__':
     with open('SET100.csv', 'r') as f:
         keys = [symbol.strip() for symbol in f.readlines()]
 
-    scraper = Scraper(keys, sources, n_thread=2)
+    scraper = Scraper(keys, sources, n_thread=5)
     scraper.start()
     # scraper.create_newscount_file(d_dup=False)
     # scraper.create_newscount_file(d_dup=True)

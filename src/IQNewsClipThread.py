@@ -74,7 +74,7 @@ class IQNewsClipThread():
             if not self.whole_file:
                 try:
                     df = pd.read_csv(f'result/{key}-{source}.csv')
-                    if len(df.index) == 0:
+                    if len(df.index) == 0: # for zero-row file
                         raise FileNotFoundError
                     recent_date = datetime.strptime(df['Date'].iloc[0], '%d/%m/%y')
                     recent_date = datetime(recent_date.year-43, recent_date.month, recent_date.day) + timedelta(days=1)
@@ -86,6 +86,7 @@ class IQNewsClipThread():
                         new_df = scraper.search_all(key, source, self.from_date, recent_date)
                     df = pd.concat([new_df, df]).reset_index(drop=True) 
                 except FileNotFoundError:
+                    # create whole file
                     df = scraper.search_all(key, source, self.from_date, self.to_date)
             # replace whole file with new one
             else:
