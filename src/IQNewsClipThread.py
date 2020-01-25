@@ -88,6 +88,7 @@ class IQNewsClipThread():
                 except FileNotFoundError:
                     # create whole file
                     df = scraper.search_all(key, source, self.from_date, self.to_date)
+
             # replace whole file with new one
             else:
                 df = scraper.search_all(key, source, self.from_date, self.to_date)
@@ -108,8 +109,7 @@ class IQNewsClipThread():
         
 
     def create_newscount_file(self, d_dup=True):
-        """create aggregate file from those .CSVs in the result folder"""
-                
+        """create aggregate file from those .CSVs in the result folder"""    
         df_out = pd.DataFrame()
         for key in self.keys:
             for source in self.sources:

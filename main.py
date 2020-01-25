@@ -8,5 +8,5 @@ if __name__ == '__main__':
 
     scraper = Scraper(keys, sources, n_thread=5)
     scraper.start()
+    scraper.create_newscount_file()
     # scraper.create_newscount_file(d_dup=False)
-    # scraper.create_newscount_file(d_dup=True)
