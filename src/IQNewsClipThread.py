@@ -13,60 +13,47 @@ class IQNewsClipThread():
         self.keys = keys
         self.sources = sources
         self.n_thread = n_thread
-        self.scrapers = [IQNewsClipScraper() for i in range(n_thread)]
+        self._available_thread = None
+        self.scrapers = []
         self.threads = []
-        self.thread_queue = []
         self.container = []
 
+    
+    def _book_sessions(self):
+        for _ in range(self.n_thread):
+            scraper = IQNewsClipScraper()
+            response = scraper.login()
+            if response.status_code != 200 or response.content.decode('UTF-8') == '003':
+                break # booking a session is incomplete
+            self.scrapers += [scraper]
+        self._available_thread = len(self.scrapers)
+        print(f'Activated {self._available_thread} Thread')
 
-    def _task(self, scraper, queue):
 
-        response = scraper.login()
-
-        # in case of error, stop this thread
-        if response.status_code != 200 or response.content.decode('UTF-8') == '003':
-            self.container = queue + self.container
-            return
-
-        while queue:
-            key, source = queue.pop(0)
+    def _task(self, scraper):
+        while self.container:
+            key, source = self.container.pop(0)
             df = scraper.search_all(key, source)
             df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
             print(f'Completed {key}-{source}.csv')
 
 
     def start(self):
-            
+
+        self._book_sessions()
+        if self._available_thread == 0: 
+            return
         self.container = [(key, source) for key in self.keys for source in self.sources]
-        self.thread_queue = [[] for i in range(self.n_thread)]
-        
-        # put ones to every queue
-        for q in self.thread_queue:
-            if self.container:
-                q += [self.container.pop(0)]
 
         # create threads and run
-        self.threads = [Thread(target=self._task, args=(self.scrapers[i], self.thread_queue[i])) for i in range(self.n_thread)]
+        self.threads = [Thread(target=self._task, args=(self.scrapers[i],)) for i in range(self._available_thread)]
         for thread in self.threads:
             thread.start()
 
-        # count number of activated thread, if 0 return
-        sleep(10)
-        n_activated = 0
-        for thread in self.threads:
-            if thread.is_alive():
-                n_activated += 1
-        print(f'Activated {n_activated} Thread')
-        if n_activated == 0:
-            return
-
-        # queue arguments in self.container in self.thread_queue
+        # main loop while waiting threads running
         while True:
-            for i in range(self.n_thread):
-                if len(self.thread_queue[i]) <= 3 and self.threads[i].is_alive():
-                    self.thread_queue[i] += [self.container.pop(0)]
-                if not self.container:
-                    return
+            if not self.container:
+                return
             sleep(1)
     
 
@@ -95,5 +82,5 @@ class IQNewsClipThread():
                 except:
                     print(f'result/{key}-{source}.csv not found')
         
-        df_out.to_csv('NewsCount.csv', index=False)
+        df_out.to_csv('NewsCount.csv', index=False, encoding='utf-8-sig')
     

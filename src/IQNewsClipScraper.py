@@ -64,7 +64,6 @@ class IQNewsClipScraper():
                 print('.', end='')
 
         print(f' {i}/{i} pages ', end='')
-
         return df
 
 
