@@ -93,7 +93,7 @@ class IQNewsClipThread():
                 df = scraper.search_all(key, source, self.from_date, self.to_date)
 
             df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
-            self.logger.info(f'Created {key}-{source}.csv')
+            self.logger.info(f'Updated {key}-{source}.csv')
 
 
     def start(self, whole_file=False):
