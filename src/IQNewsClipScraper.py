@@ -1,10 +1,11 @@
 import requests
 import pandas as pd
+import src.logger as logger
 
 from bs4 import BeautifulSoup
 from src.utils import SOURCES_CODE
 
-
+import logging
 
 class IQNewsClipScraper():
 
@@ -12,6 +13,7 @@ class IQNewsClipScraper():
     def __init__(self):
         self.session = requests.Session()
         self._has_next = None
+        self.logger = logger.create_rotating_log()
 
 
     def login(self):
@@ -58,12 +60,7 @@ class IQNewsClipScraper():
         while self.has_next():
             df = df.append(self.search_next(), ignore_index=True)
             i += 1
-            if i % 50 == 0:
-                print('|', end='')
-            elif i % 5 == 0:
-                print('.', end='')
-
-        print(f' {i}/{i} pages ', end='')
+        self.logger.info(f'Searched {i}/{i} pages of {search_key}-{source}')
         return df
 
 
@@ -85,7 +82,7 @@ class IQNewsClipScraper():
             else:
                 self._has_next = False
         except:
-            print('x', end='')
+            self.logger.error('An error occurs in extracting html')
 
         return pd.DataFrame(data)
 

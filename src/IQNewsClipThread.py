@@ -1,4 +1,9 @@
+import os
+import time
+import logging
 import pandas as pd
+import src.logger as logger
+
 from time import sleep
 from threading import Thread
 from src.IQNewsClipScraper import IQNewsClipScraper
@@ -14,6 +19,7 @@ class IQNewsClipThread():
         self.n_thread = n_thread
         self.threads = []
         self.container = []
+        self.logger = logger.create_rotating_log()
 
 
     def _task(self):
@@ -24,7 +30,9 @@ class IQNewsClipThread():
         while self.container:
             response = scraper.login()
             if response.status_code == 200 and response.content.decode('UTF-8') != '003':
+                self.logger.info('Login completed')
                 break # booking a session is complete
+            self.logger.info('Login failed')
             sleep(60)
 
         # scraping section
@@ -32,7 +40,7 @@ class IQNewsClipThread():
             key, source = self.container.pop(0)
             df = scraper.search_all(key, source)
             df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
-            print(f'Completed {key}-{source}.csv')
+            self.logger.info(f'Created {key}-{source}.csv')
 
 
     def start(self):
@@ -64,7 +72,17 @@ class IQNewsClipThread():
                     df_out = df_out.append(df, ignore_index=True)
 
                 except:
-                    print(f'result/{key}-{source}.csv not found')
+                    self.logger.warning(f'result/{key}-{source}.csv not found')
         
-        df_out.to_csv('NewsCount.csv', index=False, encoding='utf-8-sig')
-    
+        # check path exists
+        fname = 'NewsCount'
+        if os.path.exists(f'{fname}.csv'):
+            i = 1
+            while os.path.exists(f'{fname} ({i}).csv'):
+                i += 1
+            fname = f'{fname} ({i}).csv'
+        else:
+            fname = f'{fname}.csv'
+
+        df_out.to_csv(fname, index=False, encoding='utf-8-sig')
+        self.logger.info(f'Created {fname}')
