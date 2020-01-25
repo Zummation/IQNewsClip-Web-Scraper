@@ -22,20 +22,20 @@ class IQNewsClipScraper():
         return response
 
 
-    def search_once(self, search_key, source, start_date=None, end_date=None):
+    def search_once(self, search_key, source, from_date=None, to_date=None):
         """return pandas.DataFrame of one-time keyword searching"""
         
-        if isinstance(start_date, (datetime.date, datetime.datetime)):
-            start_date = f'{start_date.day:02d}/{start_date.month:02d}/{start_date.year+543}'
-        if isinstance(end_date, (datetime.date, datetime.datetime)):
-            end_date = f'{end_date.day:02d}/{end_date.month:02d}/{end_date.year+543}'
+        if isinstance(from_date, (datetime.date, datetime.datetime)):
+            from_date = f'{from_date.day:02d}/{from_date.month:02d}/{from_date.year+543}'
+        if isinstance(to_date, (datetime.date, datetime.datetime)):
+            to_date = f'{to_date.day:02d}/{to_date.month:02d}/{to_date.year+543}'
 
         payload = {
             'CtrlSearch1:txtCategory': 'ทุกหัวเรื่องที่รับบริการ',
             'CtrlSearch1:hdnews': SOURCES_CODE[source],
             'CtrlSearch1:txtSearch': search_key,
-            'CtrlSearch1:txtDateFrom': start_date,
-            'CtrlSearch1:txtDateTo': end_date,
+            'CtrlSearch1:txtDateFrom': from_date,
+            'CtrlSearch1:txtDateTo': to_date,
         }
 
         r = self.session.post('http://edu.iqnewsclip.com/ajax/GetResult.aspx?stype=search&rbt=true', data=payload)
@@ -59,10 +59,10 @@ class IQNewsClipScraper():
         return df
     
 
-    def search_all(self, search_key: str, source: str, start_date=None, end_date=None):
+    def search_all(self, search_key: str, source: str, from_date=None, to_date=None):
         """return pandas.DataFrame of every-pages data of the given search_key and source"""
 
-        df = self.search_once(search_key, source, start_date, end_date)
+        df = self.search_once(search_key, source, from_date, to_date)
         i = 1
 
         while self.has_next():
