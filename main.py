@@ -1,16 +1,12 @@
-from src.IQNewsClipScraper import IQNewsClipScraper
+from src.IQNewsClipThread import IQNewsClipThread as Scraper
 
+if __name__ == '__main__':
+    sources = ['ข่าวหุ้น', 'ทันหุ้น']
 
-sources = ['ข่าวหุ้น', 'ทันหุ้น']
+    with open('SET100.csv', 'r') as f:
+        keys = [symbol.strip() for symbol in f.readlines() if symbol > 'Y']
 
-with open('SET100.csv', 'r') as f:
-    keys = [symbol.strip() for symbol in f.readlines()]
-
-scraper = IQNewsClipScraper()
-scraper.login()
-
-for key in keys:
-    for source in sources:
-        df = scraper.search_all(key, source)
-        df.to_csv(f'result/{key}-{source}.csv', index=False, encoding='utf-8-sig')
-        print(f'Completed {key}-{source}.csv')
+    scraper = Scraper(keys, sources, n_thread=3)
+    scraper.start()
+    # scraper.create_newscount_file(d_dup=False)
+    # scraper.create_newscount_file(d_dup=True)
