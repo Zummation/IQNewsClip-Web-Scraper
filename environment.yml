@@ -1,0 +1,17 @@
+name: IQNewsClip-Web-Scraper
+channels:
+- anaconda
+- conda-forge
+- defaults
+dependencies:
+- ca-certificates=2019.11.27
+- certifi=2019.11.28
+- openssl=1.1.1d
+- pip=20.0.2
+- python=3.7.6
+- setuptools=45.1.0
+- sqlite=3.30.1
+- vc=14.1
+- vs2015_runtime=14.16.27012
+- wheel=0.33.6
+- wincertstore=0.2
