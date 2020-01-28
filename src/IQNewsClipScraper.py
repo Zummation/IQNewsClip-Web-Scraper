@@ -2,10 +2,10 @@ import logging
 import requests
 import datetime
 import pandas as pd
-import src.logger as logger
+import logger as logger
 
 from bs4 import BeautifulSoup
-from src.utils import SOURCES_CODE
+from utils import SOURCES_CODE
 
 
 class IQNewsClipScraper():

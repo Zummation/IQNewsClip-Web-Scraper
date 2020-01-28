@@ -2,12 +2,12 @@ import os
 import time
 import logging
 import pandas as pd
-import src.logger as logger
+import logger as logger
 
 from time import sleep
 from threading import Thread
 from datetime import timedelta, datetime
-from src.IQNewsClipScraper import IQNewsClipScraper
+from IQNewsClipScraper import IQNewsClipScraper
 
 
 
@@ -133,13 +133,13 @@ class IQNewsClipThread():
         
         # check path exists
         fname = 'NewsCount'
-        if os.path.exists(f'{fname}.csv'):
+        if os.path.exists(f'res/{fname}.csv'):
             i = 1
-            while os.path.exists(f'{fname} ({i}).csv'):
+            while os.path.exists(f'res/{fname} ({i}).csv'):
                 i += 1
-            fname = f'{fname} ({i}).csv'
+            fname = f'res/{fname} ({i}).csv'
         else:
-            fname = f'{fname}.csv'
+            fname = f'res/{fname}.csv'
 
         df_out.to_csv(fname, index=False, encoding='utf-8-sig')
         self.logger.info(f'Created {fname}')
