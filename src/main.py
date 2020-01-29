@@ -5,10 +5,11 @@ if __name__ == '__main__':
 
     with open('res/SET100.csv', 'r') as f:
         keys = [symbol.strip() for symbol in f.readlines()]
-
-    scraper = Scraper(keys, sources, n_thread=11)
-    scraper.start(whole_file=True)
-    scraper.create_newscount_file('NewsCount')
+    
+    
+    scraper = Scraper(keys, sources, n_thread=10)
+    scraper.start()
+    scraper.create_newscount_file('xx')
 
     # scraper.start(whole_file=True)
     # scraper.create_newscount_file(d_dup=False)

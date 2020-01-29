@@ -60,9 +60,10 @@ class IQNewsClipThread():
         
         # load cookies if exists
         try:
-            with self.cookies_handler.load_cookies(thread_id) as cookies:
-                scraper = IQNewsClipScraper(cookies=cookies)
-        except:
+            cookies = self.cookies_handler.load_cookies(thread_id)
+            scraper = IQNewsClipScraper(cookies=cookies)
+        except Exception as e:
+            self.logger.warning('Cookies: ' + str(e))
             scraper = IQNewsClipScraper()
 
         # attempt to book a session
@@ -70,7 +71,9 @@ class IQNewsClipThread():
             response = scraper.login()
             if response.status_code == 200 and response.content.decode('UTF-8') != '003':
                 self.logger.info('Login completed')
-                self.cookies_handler.save_cookies(response.cookies, thread_id)
+                # sometimes it returns no cookies
+                if response.cookies.__dict__['_cookies'] != {}:
+                    self.cookies_handler.save_cookies(response.cookies, thread_id)
                 break # booking a session is complete
             self.logger.info('Login failed')
             sleep(60)

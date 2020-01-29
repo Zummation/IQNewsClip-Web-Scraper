@@ -13,13 +13,17 @@ class IQNewsClipScraper():
 
     def __init__(self, cookies=None):
         self.session = requests.Session()
-        self.session.cookies = cookies
         self._has_next = None
         self.logger = logger.create_rotating_log()
+        
+        if cookies is not None:
+            self.session.cookies.update(cookies)
 
 
     def login(self):
+        print('ses', self.session.cookies)
         response = self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
+        print('res', response.cookies)
         return response
 
 
