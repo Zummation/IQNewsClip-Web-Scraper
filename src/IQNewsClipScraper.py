@@ -1,8 +1,8 @@
+import logger
 import logging
 import requests
 import datetime
 import pandas as pd
-import logger as logger
 
 from bs4 import BeautifulSoup
 from utils import SOURCES_CODE
@@ -11,8 +11,9 @@ from utils import SOURCES_CODE
 class IQNewsClipScraper():
 
 
-    def __init__(self):
+    def __init__(self, cookies=None):
         self.session = requests.Session()
+        self.session.cookies = cookies
         self._has_next = None
         self.logger = logger.create_rotating_log()
 
@@ -64,10 +65,11 @@ class IQNewsClipScraper():
 
         df = self.search_once(search_key, source, from_date, to_date)
         i = 1
-
         while self.has_next():
             df = df.append(self.search_next(), ignore_index=True)
             i += 1
+        # add a symbol column
+        df.insert(1, 'Symbol', search_key)
         self.logger.info(f'Searched {i}/{i} pages of {search_key}-{source}')
         return df
 

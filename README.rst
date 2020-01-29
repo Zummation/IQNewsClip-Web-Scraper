@@ -8,6 +8,7 @@ Prerequisites
 
 * `Anaconda 4+ <https://www.anaconda.com/>`_
 * Internet connection
+* Permission to access the website (via CUNET User Account)
 
 
 Set up environment

@@ -1,13 +1,14 @@
 import os
 import time
+import logger
 import logging
 import pandas as pd
-import logger as logger
 
 from time import sleep
 from threading import Thread
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 from IQNewsClipScraper import IQNewsClipScraper
+from cookies_handler import CookiesHandler
 
 
 
@@ -23,6 +24,7 @@ class IQNewsClipThread():
         self.logger = logger.create_rotating_log()
         self.set_date(from_date, to_date)
         self.whole_file = None
+        self.cookies_handler = CookiesHandler()
 
     
     def set_date(self, from_date=None, to_date=None):
@@ -53,15 +55,22 @@ class IQNewsClipThread():
         self.to_date = datetime.now() - timedelta(days=1)
 
 
-    def _task(self):
+    def _task(self, thread_id):
         """this is a function that will be running in a thread"""
-        scraper = IQNewsClipScraper()
+        
+        # load cookies if exists
+        try:
+            with self.cookies_handler.load_cookies(thread_id) as cookies:
+                scraper = IQNewsClipScraper(cookies=cookies)
+        except:
+            scraper = IQNewsClipScraper()
 
         # attempt to book a session
         while self.container:
             response = scraper.login()
             if response.status_code == 200 and response.content.decode('UTF-8') != '003':
                 self.logger.info('Login completed')
+                self.cookies_handler.save_cookies(response.cookies, thread_id)
                 break # booking a session is complete
             self.logger.info('Login failed')
             sleep(60)
@@ -69,7 +78,7 @@ class IQNewsClipThread():
         # scraping section
         while self.container:
             key, source = self.container.pop(0)
-            
+
             # append only missing date
             if not self.whole_file:
                 try:
@@ -104,14 +113,14 @@ class IQNewsClipThread():
         """create threads and run"""
         self.whole_file = whole_file
         self.container = [(key, source) for key in self.keys for source in self.sources]
-        self.threads = [Thread(target=self._task) for i in range(self.n_thread)]
+        self.threads = [Thread(target=self._task, args=(i,)) for i in range(self.n_thread)]
         for thread in self.threads:
             thread.start()
         for thread in self.threads:
             thread.join()
         
 
-    def create_newscount_file(self, d_dup=True):
+    def create_newscount_file(self, name='NewsCount', d_dup=True):
         """create aggregate file from those .CSVs in the result folder"""    
         df_out = pd.DataFrame()
         for key in self.keys:
@@ -124,15 +133,25 @@ class IQNewsClipThread():
                     df = df.pivot_table(index=['Date'], aggfunc='size') \
                         .to_frame('Count') \
                         .reset_index()
-                    df.insert(0, 'Stock', key)
                     df.insert(1, 'Source', source)
+                    df.insert(2, 'Symbol', key)
                     df_out = df_out.append(df, ignore_index=True)
 
                 except:
                     self.logger.warning(f'result/{key}-{source}.csv not found')
+
+        # date formatting
+        date_df = list(df_out.Date)
+        for i, a_date in enumerate(date_df):
+            day, month, year = map(int, a_date.split('/'))
+            date_df[i] = date(year+1957, month, day).strftime('%Y-%m-%d')
+        df_out['Date'] = pd.DataFrame(date_df)
+
+        # sort DataFrame by date
+        df_out = df_out.sort_values(by=['Date', 'Source', 'Symbol'])
         
         # check path exists
-        fname = 'NewsCount'
+        fname = name
         if os.path.exists(f'res/{fname}.csv'):
             i = 1
             while os.path.exists(f'res/{fname} ({i}).csv'):
