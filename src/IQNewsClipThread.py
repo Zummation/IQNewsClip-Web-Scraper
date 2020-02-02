@@ -102,6 +102,7 @@ class IQNewsClipThread():
                     df = pd.concat([new_df, df]).reset_index(drop=True) 
                 except FileNotFoundError:
                     # create whole file
+                    self.logger.warning(f'result/{key}-{source}.csv not found')
                     df = scraper.search_all(key, source, self.from_date, self.to_date)
 
             # replace whole file with new one
@@ -155,13 +156,13 @@ class IQNewsClipThread():
         
         # check path exists
         fname = name
-        if os.path.exists(f'res/{fname}.csv'):
+        if os.path.exists(f'aggregate/{fname}.csv'):
             i = 1
-            while os.path.exists(f'res/{fname} ({i}).csv'):
+            while os.path.exists(f'aggregate/{fname} ({i}).csv'):
                 i += 1
-            fname = f'res/{fname} ({i}).csv'
+            fname = f'aggregate/{fname} ({i}).csv'
         else:
-            fname = f'res/{fname}.csv'
+            fname = f'aggregate/{fname}.csv'
 
         df_out.to_csv(fname, index=False, encoding='utf-8-sig')
         self.logger.info(f'Created {fname}')

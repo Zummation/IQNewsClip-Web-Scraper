@@ -21,9 +21,7 @@ class IQNewsClipScraper():
 
 
     def login(self):
-        print('ses', self.session.cookies)
         response = self.session.get('http://edu.iqnewsclip.com/ajax/authentication.aspx')
-        print('res', response.cookies)
         return response
 
 
